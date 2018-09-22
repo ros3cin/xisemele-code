@@ -1,0 +1,162 @@
+Seja bem vindo ao projeto Xisemele
+
+  Xisemele é uma biblioteca simples escrita em Java para manipulação de XML com uma 
+  {{{http://martinfowler.com/bliki/FluentInterface.html}interface fluente}} para leitura, escrita e edição de documentos da API 
+  {{{http://java.sun.com/j2se/1.5.0/docs/api/org/w3c/dom/package-summary.html}W3C DOM}}. 
+  
+  Por exemplo, o código:
+   
++--
+import net.sf.xisemele.api.Writer;
+import net.sf.xisemele.impl.XisemeleFactory;
++-- 
++--
+Writer writer = XisemeleFactory.newXisemele()
+   .createWriter("raiz").within()
+      .element("elemento1", 15)
+      .element("elemento2").attribute("attr", "valor").within()
+         .element("filho1", "valor filho1")
+         .element("filho2", "valor filho2")
+      .endWithin()
+   .endWithin();
+   
+String xml = writer.result().ident(true).toXML();
+   
+System.out.println( xml );
++--
+
+  Imprime no console o seguinte XML:
+  
++--
+<?xml version="1.0" encoding="UTF-8"?>
+<raiz>
+   <elemento1>15</elemento1>
+   <elemento2 attr="valor">
+      <filho1>valor filho1</filho1>
+      <filho2>valor filho2</filho2>
+   </elemento2>
+</raiz>
++--
+
+  A implementação de Xisemele abstrai a API DOM em uma interface simplificada. Nem todas as operações da API DOM são suportadas. Porém,
+  para o propósito que essa biblioteca foi implementada, as operações não suportadas raramente serão necessárias ou então, em último caso,
+  serão implementadas em versões futuras. 
+  
+  Para entender este propósito, veja o exemplo de como o mesmo XML mostrado acima seria escrito usando a API DOM:
+  
+---
+import java.io.StringWriter;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Attr;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+---
+---
+try {
+   DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+   Document doc = builder.newDocument();
+   doc.setXmlStandalone(true);
+
+   Element raiz = doc.createElement("raiz");
+   doc.appendChild(raiz);
+         
+   Element elemento1 = doc.createElement("elemento1");
+   raiz.appendChild(elemento1);
+   elemento1.appendChild( doc.createTextNode("15") );
+         
+   Element elemento2 = doc.createElement("elemento2");
+   Attr atributo = doc.createAttribute("attr");
+   atributo.setNodeValue("valor");
+   elemento2.setAttributeNode(atributo);
+   raiz.appendChild(elemento2);
+         
+   Element filho1 = doc.createElement("filho1");
+   filho1.appendChild( doc.createTextNode("valor filho1") );
+   elemento2.appendChild(filho1);
+         
+   Element filho2 = doc.createElement("filho2");
+   filho2.appendChild( doc.createTextNode("valor filho2") );
+   elemento2.appendChild(filho2);
+         
+   StringWriter writer = new StringWriter();
+         
+   Transformer transformer = TransformerFactory.newInstance().newTransformer();
+   transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+   transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+   transformer.transform(new DOMSource(doc), new StreamResult(writer));
+         
+   System.out.println( writer.toString() );
+         
+} catch (DOMException e) {
+   e.printStackTrace();
+} catch (TransformerConfigurationException e) {
+   e.printStackTrace();
+} catch (IllegalArgumentException e) {
+   e.printStackTrace();
+} catch (ParserConfigurationException e) {
+   e.printStackTrace();
+} catch (TransformerFactoryConfigurationError e) {
+   e.printStackTrace();
+} catch (TransformerException e) {
+   e.printStackTrace();
+}
+---
+
+Funcionalidades
+
+  * Leitura, escrita e edição de documentos XML.
+  
+  * Conversão de valores para tipos pré-definidos ou personalizados.
+  
+  * Navegação pela árvore do documento XML através de métodos com interface fluente ou por <path> estilo "raiz/elemento/filho/elementoAlvo".
+  
+Funcionalidades não implementadas
+
+  Segue abaixo a lista de funcionalidades não suportadas pela API Xisemele. Tais funcionalidades poderão ser implementadas em versões
+  futuras.
+  
+  * Manipulação de <Namespaces>.
+  
+  * Manipulação de dados <CDATA> 
+  
+  * Validação de documentos com relação a determinado <Schema>.
+  
+  * Suporte à <XPath>.
+  
+Tutorial
+
+  Para entender como usuar a biblioteca Xisemele veja a seção {{{tutorial/introducao.html}Tutorial}}. Recomenda-se baixar os fontes
+  do projeto para ver todos os exemplos nos testes unitários conforme for estudando a API.  
+  
+Download
+
+  Você pode obter o Xisemele das seguintes formas:
+  
+  * Baixando a {{{https://sourceforge.net/projects/xisemele/files/}<release> atual}} do <site> da {{{http://sourceforge.net}SOURCEFORGE}}.
+  
+  * Baixando o código fonte direto do repositório SVN: 
+  
+---
+svn checkout https://xisemele.svn.sourceforge.net/svnroot/xisemele/xisemele xisemele
+---
+
+  * Ou sincronizando seu repositório local diretamente do {{{http://repo2.maven.org/maven2/net/sf/xisemele/xisemele/}repositório central do Maven}}:
+  
+---
+<groupId>net.sf.xisemele</groupId>
+<artifactId>xisemele</artifactId>
+<version>1.3</version>
+---

@@ -1,0 +1,270 @@
+Formatação de valores com o Xisemele
+
+  A API do Xisemele permite que sejam configurados formatadores para tratar a conversão de tipos de valores de elementos e atributos. É
+  possível configurar um formatador tanto para tipos personalizados como para tipos pré-definidos da implementação de Xisemele.
+  
+  Configurar um formatador implica em atribuir uma implementação de <Formatter> para determinado tipo (<Class>) a uma instância de Xisemele.
+  A interface <Formatter> é definida abaixo:
+  
+---
+public interface Formatter<T> extends Serializable {
+
+   Class<T> type();
+   
+   String format(T value);
+   
+   T parse(String text);
+   
+}
+---
+
+  O método <Formatter.type()> deve retornar o tipo (<Class>) para qual a implementação de <Formatter> está configurada. O método 
+  <Formatter.format(T)> deve retornar uma <String> correspondente à conversão do valor especificado por parâmetro para o tipo <<T>>. 
+  O inverso deve ser feito pelo método <Formatter.parse(String)> que deve retornar uma instância do tipo <<T>> correspondente à conversão 
+  da <String> especificada por parâmetro.
+  
+  Veja a seguir como formatadores podem ser configurados na prática.
+  
+{Configurando formatadores para tipos personalizados}
+
+  Considere o tipo personalizado <<Endereco>> implementado abaixo:
+  
+---
+public class Endereco {
+
+   private String rua;
+   private int numero;
+   private String bairro;
+   private long cep;
+   
+   public Endereco(String rua, int numero, String bairro, long cep) {
+      this.rua = rua;
+      this.numero = numero;
+      this.bairro = bairro;
+      this.cep = cep;
+   }
+
+   @Override
+   public String toString() {
+      return "Endereco[rua: " + rua + ", numero: " + numero + ", bairro: " + bairro + ", cep: " + cep + "]";
+   }
+   
+   // métodos getters e setters
+}
+---
+
+  Essa classe é apenas uma abstração de endereço para exemplificar o uso de formatadores para tipos personalizados. Ela contém os atributos
+  rua, numero, bairro e cep. O método <Endereco.toString()> foi implementado para retornar uma <String> com a descrição do endereço. Os 
+  métodos <getters> e <setters> dos atributos foram omitidos apenas para simplificar o exemplo.
+  
+  Agora, veja um exemplo de como um <Formatter> pode ser configurado para esse tipo.
+  
+---
+import net.sf.xisemele.api.Formatter;
+import net.sf.xisemele.api.Reader;
+import net.sf.xisemele.api.Writer;
+import net.sf.xisemele.api.Xisemele;
+import net.sf.xisemele.impl.XisemeleFactory;
+---
+---
+Formatter<Endereco> enderecoFormatter = new Formatter<Endereco>() {                              // (1)
+   public Class<Endereco> type() {
+      return Endereco.class;
+   }
+         
+   public String format(Endereco endereco) {
+      return endereco.getRua() + "," + endereco.getNumero() + "," + endereco.getBairro() + "," + endereco.getCep();
+   }
+
+   public Endereco parse(String text) {
+      String[] split = text.split(",");
+            
+      String rua = split[0];
+      int numero = Integer.parseInt(split[1]);
+      String bairro = split[2];
+      long cep = Long.parseLong(split[3]);
+            
+      return new Endereco(rua, numero, bairro, cep);
+   }
+};
+      
+Xisemele xisemele = XisemeleFactory.newXisemele();
+      
+xisemele.setFormatter(enderecoFormatter);                                                        // (2)
+      
+Writer writer = xisemele.createWriter("raiz")                                                    // (3)
+   .within()
+      .element("elementoA").attribute("endereco", new Endereco("Rua qualquer", 123, "Centro", 87123456))
+      .element("elementoB").within()
+         .element("endereco", new Endereco("Rua fulano", 456, "Bairro X", 87654321))
+      .endWithin()
+   .endWithin();
+      
+String xml = writer.result().ident(true).toXML();
+      
+System.out.println( xml );
+      
+Reader reader = xisemele.createReader( xml );            
+      
+Endereco enderecoA = reader.find("raiz/elementoA").attribute("endereco").asType(Endereco.class); // (4)
+      
+System.out.println("Endereço elementoA");
+System.out.println( enderecoA );
+System.out.println();
+      
+Endereco enderecoB = reader.find("raiz/elementoB/endereco").value().asType(Endereco.class);      // (5)
+
+System.out.println("Endereço elementoB");
+System.out.println( enderecoB );
+---
+
+  Na declaração <<(1)>> foi implementada a interface <Formatter> para o tipo <<Endereco>>. Em <<(2)>> a instância de Xisemele é configurada
+  com esse formatador através do método <Xisemele.setFormatter(Formatter)>. Feito isso, a instância de Xisemele é usada para escrever
+  um XML do zero usando uma instância de <Writer> obtida a partir da instância de Xisemele configurada, como pode ser observado em 
+  <<(3)>>. Na sequência, o mesmo XML é lido usando uma instância de <Reader>, obtida através da mesma instância de Xisemele, e a instância 
+  de <<Endereco>> é recuperada dos elementos <<elementoA>> e <<elementoB>> convertida pelo método <Value.asType(Class)>, como pode ser 
+  observado em <<(4)>> e <<(5)>>, respectivamente. 
+  
+  O método <Value.asType(Class)> verifica se há um formatador configurado para o tipo
+  especificado por parâmetro para efetuar a conversão. Se não houver um formatador configurado e o tipo (<Class>) especificado por 
+  parâmetro não for um dos tipos pré-definidos, o método irá disparar uma exceção. 
+  
+  Note que no <<elementoA>> a instância de <<Endereco>> foi atribuída como valor do atributo <<endereco>>, e
+  no <<elementoB>> outra instância desse mesmo tipo foi atribuída como valor do elemento filho <<endereco>>. 
+  
+  O trecho de código acima imprime o seguinte resultado no console:
+  
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<raiz>
+  <elementoA endereco="Rua qualquer,123,Centro,87123456"/>
+  <elementoB>
+    <endereco>Rua fulano,456,Bairro X,87654321</endereco>
+  </elementoB>
+</raiz>
+
+Endereço elementoA
+Endereco[rua: Rua qualquer, numero: 123, bairro: Centro, cep: 87123456]
+
+Endereço elementoB
+Endereco[rua: Rua fulano, numero: 456, bairro: Bairro X, cep: 87654321]
+--- 
+
+{Configurando formatadores para tipos pré-definidos}
+
+  A API do Xisemele permite sobrescrever a conversão para tipos pré-definidos. A conversão <default> destes tipos é feita no estilo
+  <Tipo.toString()> e <Tipo.valueOf(String)>, exceto para o tipo <java.util.Date>, como será visto mais abaixo. 
+  
+  Por exemplo, para o tipo <Boolean> a conversão para <String> resulta em "true/false". Para que o valor seja convertido
+  para "sim/não", um formatador pode ser configurado da seguinte forma:
+  
+---
+import net.sf.xisemele.api.Formatter;
+import net.sf.xisemele.api.Reader;
+import net.sf.xisemele.api.Writer;
+import net.sf.xisemele.api.Xisemele;
+import net.sf.xisemele.impl.XisemeleFactory;
+---
+---
+Formatter<Boolean> booleanFormatter = new Formatter<Boolean>() {
+   public Class<Boolean> type() {
+      return Boolean.class;
+   }
+         
+   public String format(Boolean value) {
+      return value ? "sim" : "não";
+   }
+
+   public Boolean parse(String text) {
+      return text.equals("sim") ? Boolean.TRUE : Boolean.FALSE;
+   }
+};
+      
+Xisemele xisemele = XisemeleFactory.newXisemele().setFormatter( booleanFormatter );
+      
+Writer writer = xisemele.createWriter("raiz")
+   .within()
+      .element("elementoA", Boolean.TRUE)
+      .element("elementoB", Boolean.FALSE)
+   .endWithin();
+      
+String xml = writer.result().ident(true).toXML();
+      
+System.out.println( xml );
+      
+Reader reader = xisemele.createReader( xml );
+      
+System.out.println("ElementoA: " +  reader.find("raiz/elementoA").value().asBoolean() );
+System.out.println("ElementoB: " +  reader.find("raiz/elementoB").value().asBoolean() );
+---
+
+  O trecho de código acima imprime no console o seguinte resultado:
+
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<raiz>
+  <elementoA>sim</elementoA>
+  <elementoB>não</elementoB>
+</raiz>
+
+ElementoA: true
+ElementoB: false
+---
+
+Configurando formatadores para o tipo <java.util.Date>
+
+  Um formatador pode ser configurado para o tipo <java.util.Date> da mesma forma que foi demonstrado acima. Porém, o Xisemele já tem
+  um formatador implementado para esse tipo. Em vez de implementar uma instância de <Formatter> você pode, se quiser, definir apenas
+  o formato que será usado para conversão de datas, como o exemplo abaixo:
+  
+---
+import java.util.Date;
+
+import net.sf.xisemele.api.Reader;
+import net.sf.xisemele.api.Writer;
+import net.sf.xisemele.api.Xisemele;
+import net.sf.xisemele.impl.XisemeleFactory;
+---
+---
+Xisemele xisemele = XisemeleFactory.newXisemele()
+   .setDatePattern("dd/MM/yyyy kk:mm:ss");      // (1)
+      
+Writer writer = xisemele.createWriter("raiz")
+   .within()
+      .element("data", new Date())
+   .endWithin();
+      
+String xml = writer.result().ident(true).toXML();
+      
+System.out.println( xml );
+      
+Reader reader = xisemele.createReader( xml );
+      
+Date data = reader.find("raiz/data").value().asDate();
+      
+System.out.println("Data: " + data);
+---
+
+  O método <Xisemele.setDatePattern(String)> define o padrão que será usado para formatação de datas. No caso da chamada <<(1)>> a 
+  formatação de datas foi configurada para o padrão "dd/MM/yyyy kk:mm:ss". 
+  
+  O trecho de código acima imprime o seguinte resultado no console:
+  
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<raiz>
+  <data>03/08/2009 12:28:23</data>
+</raiz>
+
+Data: Mon Aug 03 12:28:23 BRT 2009
+---
+  
+Outros tutoriais
+
+  * {{{leitura.html}Leitura de XML}}
+
+  * {{{escrita.html}Escrita de XML}}
+  
+  * {{{edicao.html}Edição de XML}}
+  
+  * {{{result.html}Interface <Result>}}

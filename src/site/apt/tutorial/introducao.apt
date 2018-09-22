@@ -1,0 +1,95 @@
+Tutorial
+
+  Este tutorial ensina como documentos XML podem ser manipulados usando o Xisemele.
+
+{Valores}
+
+  O conceito sobre XML na implementação do Xisemele é um pouco diferente das demais APIs: Um determinado elemento de um documento XML 
+  pode conter atributos, valor ou elementos filhos. O conceito de atributos e elementos filhos é equivalente ao definido pela especificação 
+  da W3C. O que é tratado mais especificamente é o conceito de valor de um elemento XML.
+  
+  O valor é o texto delimitado pelas <tags> que abrem e fecham o elemento. Por exemplo, no seguinte trecho de XML:
+  
+---
+...
+<endereco>
+   <rua>José Clemente</rua>
+   <numero>835</numero>
+   ...
+</endereco>
+...
+---
+
+  O texto "José Clemente" é o valor do elemento <<rua>> e o texto "835" o valor do elemento <<numero>>. Em outras APIs estes valores são 
+  tratados apenas como texto destes elementos (<TEXT NODE>). Para o Xisemele não é possível um elemento conter valor e filhos 
+  simultaneamente. A API não permite que seja especificado um valor para um elemento que já contenha filhos e nem adicionar um filho para 
+  um elemento que já contenha valor.    
+  
+  O valor de um elemento pode ser convertido para tipos pré-definidos ou personalizados. Veja como tratar tipos personalizados na seção 
+  {{{formatacao.html}Formatadores}}.
+  
+{Path}
+
+  Os elementos em um documento XML podem ser referenciados diretamente no Xisemele através de seu <Path>. Este conceito pode ser 
+  visto como uma simplificação/limitação do recurso {{{http://www.w3.org/TR/xpath20/}XPath}}. Um <Path> é uma <String> contendo 
+  os nomes dos elementos que definem o caminho desde a raiz do documento até o elemento alvo, escritos da esquerda para a direita, 
+  separados pelo caractere '/'.
+  
+  O conceito de <Path> será entendido mais facilmente com exemplos. Portanto, considere o seguinte XML:
+  
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<raiz>
+   <elementoA>
+      <elementoB>
+         <elementoC></elementoC>
+         <elementoD></elementoD>
+      </elementoB>
+   </elementoA>
+   <elementoE></elementoE>
+</raiz>
+--- 
+
+  O <Path> correspondente para cada elemento neste documento pode ser observado na <<Tabela 1>>:
+
+*-----------*------------------------------------*
+ raiz       | raiz
+*-----------*------------------------------------*
+ elementoA  | raiz/elementoA
+*-----------*------------------------------------*
+ elementoB  | raiz/elementoA/elementoB
+*-----------*------------------------------------*
+ elementoC  | raiz/elementoA/elementoB/elementoC
+*-----------*------------------------------------*
+ elementoD  | raiz/elementoA/elementoB/elementoD
+*-----------*------------------------------------*
+ elementoE  | raiz/elementoE
+*-----------*------------------------------------*
+<<Tabela 1>>: Elemento e <Path> correspondente.
+
+  Nem todos os elementos de um documento XML poderão ser acessados diretamente pelo seu <Path>. Por exemplo, para o XML abaixo:
+  
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<raiz>
+   <elementoA>
+      <elementoB>10</elementoB>
+      <elementoB>20</elementoB>
+   </elementoA>
+</raiz>
+---
+  
+  Existem dois elementos com o mesmo <Path> "raiz/elementoA/elementoB". Neste caso, somente o primeiro elemento <<elementoB>>, 
+  contado de cima para baixo, poderá ser acessado diretamente pelo seu <Path>. Esta é uma limitação em consequência da simplificação
+  deste recurso. Uma solução para esse problema será implementada em versão futura. 
+  
+Operações básicas
+  
+  Entendido o conceito de valor e <Path> na API Xisemele, você pode aprender agora como usar o Xisemele para manipular 
+  documentos XML com as seguintes funcionalidades apresentadas abaixo:
+  
+  * {{{leitura.html}Leitura de XML}}
+  
+  * {{{escrita.html}Escrita de XML}}
+  
+  * {{{edicao.html}Edição de XML}}  

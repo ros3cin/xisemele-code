@@ -1,0 +1,259 @@
+Edição de documentos XML
+
+  Este tutorial ensina como editar documentos XML através da interface <Editor> do Xisemele.
+  
+  A interface de edição do Xisemele pode ser vista como uma extensão da interface de escrita. Portanto, os métodos que tratam
+  o contexto <within> e a adição de atributos e elementos não serão descritos aqui. Recomenda-se estudar primeiro o tutorial de escrita
+  de XML na seção {{{escrita.html}Escrita de documentos XML}}.
+  
+{Editor}
+
+  Para editar um documento XML você precisa obter uma instância de <Editor> da seguinte forma:
+  
+---
+import net.sf.xisemele.api.Editor;
+import net.sf.xisemele.impl.XisemeleFactory;
+---
+---
+Editor editor = XisemeleFactory.newXisemele().createEditor( documentoXML );
+---
+
+  Neste caso, o <<documentoXML>> pode ser um <<java.io.File>>, um <<java.io.InputStream>> ou uma String contendo o documento XML que deverá 
+  ser lido.
+  
+{Elemento corrente}
+
+  Todas as operações na edição de determinado documento XML afetam diretamente o elemento corrente de uma instância de <Editor>. O elemento
+  corrente <default> de uma instância de <Editor> recém criada pelo método <Xisemele.createEditor()> é o elemento raiz. Você pode invocar 
+  o método <Editor.defineAsCurrent(String)>, especificando por parâmetro o <path> do elemento, para definir outro elemento corrente. 
+  Para saber mais sobre <path> leia a seção {{{introducao.html#Path}Path}}.
+  
+  O Xisemele irá disparar uma exceção se for especificado um <path> inválido ao invocar o método <Editor.defineAsCurrent(String)>. 
+  Para evitar isso a API fornece o método <Editor.containsElement(String)> que verifica se determinado <path> é valido ou não. Ou seja, 
+  esse método verifica se existe no documento XML o elemento correspondente ao <path> especificado por parâmetro.
+
+{Editando valores}
+
+  O Xisemele implementa um conceito de que elementos podem ter valor. Veja mais detalhes sobre isso na seção 
+  {{{introducao.html#Valores}Valores}}.
+  
+  Os valores podem ser editados da seguinte forma:
+  
+---
+import java.util.Date;
+
+import net.sf.xisemele.api.Editor;
+import net.sf.xisemele.impl.XisemeleFactory;
+---
+---
+String xml = 
+   "<raiz>" +
+      "<elementoA>10</elementoA>" +
+      "<elementoB>10/07/2009</elementoB>" +
+   "</raiz>";
+
+Editor editor = XisemeleFactory.newXisemele().createEditor( xml )
+   .defineAsCurrent("raiz/elementoA").value(20)                        // (1)
+   .defineAsCurrent("raiz/elementoB").value(new Date(), "dd/MM/yyyy"); // (2) 
+    
+xml = editor.result().ident(true).toXML();
+      
+System.out.println( xml );
+---
+
+  Na chamada <<(1)>> o <<elementoA>> é definido como elemento corrente e em seguida ganha o valor 20 através do método 
+  <Editor.value(Object)>. Da mesma forma, na chamada <<(2)>>, o <<elementoB>> ganha uma nova data como valor através do método 
+  <Editor.value(java.util.Date, String)>.
+  
+  O trecho de código acima imprime no console o seguinte XML:
+
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<raiz>
+  <elementoA>20</elementoA>
+  <elementoB>31/07/2009</elementoB>
+</raiz>
+---
+
+  O método <Editor.result()> retorna uma instância da interface <Result>. Essa interface abstrai a transformação do documento XML para 
+  outro formato como <String>, arquivo, etc. Veja mais detalhes sobre como usar esse recurso na seção {{{result.html}Result}}.
+  
+{Renomeando elementos}
+
+  Os elementos podem ser renomeados através do método <Editor.rename(String)> da seguinte forma:
+  
+---
+import net.sf.xisemele.api.Editor;
+import net.sf.xisemele.impl.XisemeleFactory;
+---
+---
+String xml = 
+   "<raiz>" +
+      "<elementoA/>" +
+      "<elementoB/>" +
+   "</raiz>";
+
+Editor editor = XisemeleFactory.newXisemele().createEditor( xml )
+   .defineAsCurrent("raiz/elementoA").rename("novoNomeA")
+   .defineAsCurrent("raiz/elementoB").rename("novoNomeB"); 
+    
+xml = editor.result().ident(true).toXML();
+      
+System.out.println( xml );
+---
+
+  O trecho de código acima imprime no console o seguinte XML:
+  
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<raiz>
+  <novoNomeA/>
+  <novoNomeB/>
+</raiz>
+---
+
+{Removendo elementos}
+
+  Determinados elementos podem ser removidos através do método <Editor.remove()> da seguinte forma:
+  
+---
+import net.sf.xisemele.api.Editor;
+import net.sf.xisemele.impl.XisemeleFactory;
+---
+---
+String xml = 
+   "<raiz>" +
+      "<elementoA/>" +
+      "<elementoB/>" +
+      "<elementoC>" +
+         "<elementoD/>" +
+         "<elementoE/>" +
+      "</elementoC>" +
+   "</raiz>";
+
+Editor editor = XisemeleFactory.newXisemele().createEditor( xml )
+   .defineAsCurrent("raiz/elementoA").remove()
+   .defineAsCurrent("raiz/elementoC/elementoD").remove(); 
+    
+xml = editor.result().ident(true).toXML();
+      
+System.out.println( xml );
+---
+
+  Neste exemplo foram removidos os elementos "raiz/elementoA" e "raiz/elementoC/elementoD", como pode ser observado no XML impresso
+  no console:
+  
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<raiz>
+  <elementoB/>
+  <elementoC>
+    <elementoE/>
+  </elementoC>
+</raiz>
+---
+
+{Removendo atributos}
+
+  Os atributos de determinado elemento podem ser removidos da seguinte forma:
+  
+---
+import net.sf.xisemele.api.Editor;
+import net.sf.xisemele.impl.XisemeleFactory;
+---
+---
+String xml = 
+   "<raiz>" +
+      "<elementoA atrA=\"valor A\" atrB=\"valor B\" atrC=\"valor C\" />" +
+      "<elementoB atrD=\"valor D\" atrE=\"valor E\" />" +
+   "</raiz>";
+
+Editor editor = XisemeleFactory.newXisemele().createEditor( xml )
+   .defineAsCurrent("raiz/elementoA").removeAttribute("atrA").removeAttribute("atrC")  // (1)
+   .defineAsCurrent("raiz/elementoB").removeAttributes();                              // (2)
+    
+xml = editor.result().ident(true).toXML();
+      
+System.out.println( xml );
+---
+
+  Em <<(1)>> o método <Editor.removeAttribute(String)> é invocado para remover os atributos com nome <<atrA>> e <<atrC>> do
+  elemento corrente <<elementoA>>. Em <<(2)>> o método <Editor.removeAttributes()> é invocado para remover todos os atributos do
+  elemento corrente <<elementoB>>. 
+  
+  O trecho de código acima imprime no console o seguinte XML:
+  
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<raiz>
+  <elementoA atrB="valor B"/>
+  <elementoB/>
+</raiz>
+--- 
+
+{Removendo elementos filhos}
+
+  Os filhos de determinado elemento podem ser removidos da seguinte forma:
+  
+---
+import net.sf.xisemele.api.Editor;
+import net.sf.xisemele.impl.XisemeleFactory;
+---
+---
+String xml = 
+   "<raiz>" +
+      "<elementoA>" +
+         "<elementoB />" +
+         "<elementoC />" +
+      "</elementoA>" +
+      "<elementoD>" +
+         "<elementoE />" +
+         "<elementoE />" +
+         "<elementoE />" +
+         "<elementoF />" +
+      "</elementoD>" +
+      "<elementoG>" +
+         "<elementoH />" +
+         "<elementoI />" +
+         "<elementoJ />" +
+      "</elementoG>" +
+   "</raiz>";
+
+Editor editor = XisemeleFactory.newXisemele().createEditor( xml )
+   .defineAsCurrent("raiz/elementoA").removeChild("elementoC")    // (1)
+   .defineAsCurrent("raiz/elementoD").removeChildren("elementoE") // (2)
+   .defineAsCurrent("raiz/elementoG").removeChildren();           // (3)
+    
+xml = editor.result().ident(true).toXML();
+      
+System.out.println( xml );
+---
+
+  Em <<(1)>> o método <Editor.removeChild(String)> é invocado para remover o primeiro filho de <<elementoA>> com o nome <<elementoC>>. 
+  Em <<(2)>> o método <Editor.removeChildren(String)> é invocado para remover todos os filhos de <<elementoD>> com o nome <<elementoE>> e
+  por último em <<(3)>> o método <Editor.removeChildren()> é invocado para remover todos os filhos de <<elementoG>>.
+  
+  O trecho de código acima imprime no console o seguinte XML:
+  
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<raiz>
+  <elementoA>
+    <elementoB/>
+  </elementoA>
+  <elementoD>
+    <elementoF/>
+  </elementoD>
+  <elementoG/>
+</raiz>
+--- 
+
+Outros tutoriais
+
+  * {{{leitura.html}Leitura de XML}}
+
+  * {{{escrita.html}Escrita de XML}}
+  
+  * {{{result.html}Interface <Result>}}
+  
+  * {{{formatador.html}Formatadores}}

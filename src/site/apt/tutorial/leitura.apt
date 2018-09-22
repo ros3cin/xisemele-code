@@ -1,0 +1,433 @@
+Leitura de documentos XML
+
+  Este tutorial ensina como ler documentos XML através da interface <Reader> do Xisemele. 
+
+{Reader}
+  
+  Para ler um documento XML você precisa obter uma instância de <Reader> da seguinte forma:
+  
+---
+import net.sf.xisemele.api.Reader;
+import net.sf.xisemele.impl.XisemeleFactory;
+---
+---
+Reader reader = XisemeleFactory.newXisemele().createReader( documentoXML );
+---
+
+  Neste caso, o <<documentoXML>> pode ser um <java.io.File>, um <java.io.InputStream> ou uma <String> contendo o documento XML que deverá
+  ser lido. 
+  
+Acessando elementos diretamente pelo <Path>
+  
+  Você pode referenciar determinados elementos em um documento XML diretamente pelo {{{introducao.html#Path}<Path>}} usando o método 
+  <Reader.find()>.
+  
+  Considere o seguinte Exemplo:
+  
+---
+import net.sf.xisemele.api.Reader;
+import net.sf.xisemele.impl.XisemeleFactory;
+---
+---
+String xml = 
+   "<raiz>" + 
+      "<elementoA>valorA</elementoA>" +
+      "<elementoB>" +
+         "<elementoC>valorC</elementoC>" +
+      "</elementoB>" +
+   "</raiz>";
+   
+Reader reader = XisemeleFactory.newXisemele().createReader( xml );
+
+System.out.println( reader.find("raiz/elementoA").name() );
+System.out.println( reader.find("raiz/elementoB").name() );
+System.out.println( reader.find("raiz/elementoB/elementoC").name() );
+---
+
+  O trecho de código acima imprime no console o seguinte resultado:
+  
+---
+elementoA
+elementoB
+elementoC
+---
+
+  O método <Reader.find()> retorna uma instância de <Element> correspondente ao {{{introducao.html#Path}<Path>}} especificado por 
+  parâmetro. O método <Element.name()>, por sua vez, retorna uma <String> contendo o nome do elemento referenciado.
+  
+{Lendo valores}
+
+  O Xisemele usa o conceito de que um elemento XML pode conter valor. Para entender melhor esse conceito leia a seção 
+  {{{introducao.html#Valores}Valores}}.
+  
+  Valores em um documento XML podem ser lidos da seguinte forma:
+  
+---
+import net.sf.xisemele.api.Reader;
+import net.sf.xisemele.impl.XisemeleFactory;
+---
+---
+String xml =
+   "<raiz>" +
+      "<elementoA>10</elementoA>" +
+      "<elementoB>true</elementoB>" +
+      "<elementoC>texto</elementoC>" +
+   "</raiz>";
+   
+Reader reader = XisemeleFactory.newXisemele().createReader( xml );
+
+Integer valorA = reader.find("raiz/elementoA").value().asInteger();
+Boolean valorB = reader.find("raiz/elementoB").value().asBoolean();
+String valorC = reader.find("raiz/elementoC").value().asString();
+---
+
+  O método <Element.value()> retorna uma instância de <Value> correspondente ao valor do elemento no documento XML. A interface <Value>
+  contém métodos úteis para conversão do texto de determinado elemento para tipos pré-definidos ou tipos personalizados. A 
+  <<Tabela 1>> mostra os métodos da interface <Value> e os tipos respectivos para qual o valor é convertido.
+  
+*---------------*----------------------------*
+ asByte()       | java.lang.Byte
+*---------------*----------------------------*
+ asShort()      | java.lang.Short 
+*---------------*----------------------------*
+ asInteger()    | java.lang.Integer
+*---------------*----------------------------*
+ asLong()       | java.lang.Long
+*---------------*----------------------------*
+ asFloat()      | java.lang.Float
+*---------------*----------------------------*
+ asDouble()     | java.lang.Double
+*---------------*----------------------------*
+ asBigInteger() | java.math.BigInteger
+*---------------*----------------------------*
+ asBigDecimal() | java.math.BigDecimal
+*---------------*----------------------------*
+ asBoolean()    | java.lang.Boolean
+*---------------*----------------------------*
+ asString()     | java.lang.String
+*---------------*----------------------------*
+ asDate()       | java.util.Date
+*---------------*----------------------------*
+ asType()       | Tipo definido pelo usuário
+*---------------*----------------------------*
+{<<Tabela 1>>}: Método de conversão e tipo correspondente.
+
+  O método <Value.asType()> retorna o valor do elemento convertido para determinado tipo de acordo com a implementação do <Formatter>
+  configurado. Para entender como configurar um <Formatter> para um tipo personalizado veja a seção {{{formatador.html}Formatadores}}.
+  
+{Lendo atributos}
+  
+  Os atributos de determinado elemento podem ser lidos da seguinte forma:
+  
+---
+import java.util.Date;
+
+import net.sf.xisemele.api.Element;
+import net.sf.xisemele.api.Reader;
+import net.sf.xisemele.impl.XisemeleFactory;
+---
+---
+String xml =
+   "<raiz>" +
+      "<elemento atr1=\"10\" atr2=\"true\" atr3=\"17/07/2009\" />" +
+   "</raiz>";
+         
+Reader reader = XisemeleFactory.newXisemele().createReader( xml );
+
+Element element = reader.find("raiz/elemento");
+      
+Integer atr1 = element.attribute("atr1").asInteger();
+Boolean atr2 = element.attribute("atr2").asBoolean();
+Date atr3 = element.attribute("atr3").asDate("dd/MM/yyyy");
+---
+
+  O método <Element.attribute()> retorna uma instância de <Value> correspondente ao valor do atributo do qual o nome é especificado
+  por parâmetro. A forma como o valor de um atributo é convertido para determinado tipo é equivalente ao que está definido na 
+  {{{Tabela_1}<<Tabela 1>>}}. 
+  
+  É possível recuperar a lista de atributos de determinado elemento através do método <Element.attributes()>:
+
+---
+import net.sf.xisemele.api.Attribute;
+import net.sf.xisemele.api.Reader;
+import net.sf.xisemele.impl.XisemeleFactory;
+---
+---
+String xml =
+   "<raiz>" +
+      "<elemento atr1=\"10\" atr2=\"true\" atr3=\"17/07/2009\" />" +
+   "</raiz>";
+         
+Reader reader = XisemeleFactory.newXisemele().createReader( xml );
+
+for (Attribute atr : reader.find("raiz/elemento").attributes()) {
+   System.out.println( atr.name() + " = " + atr.value().asString() );
+}
+---
+
+  O método <Attribute.name()> retorna o nome e o método <Attribute.value()> retorna uma instância de <Value> correspondente
+  ao valor do atributo.
+
+  O trecho de código acima imprime no console o seguinte resultado:
+  
+---
+atr1 = 10
+atr2 = true
+atr3 = 17/07/2009
+---
+
+  A interface <Element> fornece ainda mais 2 métodos para trabalhar com atributos: <Element.containsAttributes()> e 
+  <Element.containsAttribute(String)>. O método <Element.containsAttributes()> indica se determinado elemento contém atributos e o
+  método <Element.containsAttribute(String)> indica se o elemento contém o atributo com o nome especificado por parâmetro.
+  
+{Elementos filhos}
+
+  A interface <Element> fornece métodos que permitem verificar se determinado elemento contém ou não filhos e outros que permitem recuperar 
+  os filhos pelo nome, índice ou em uma lista de <Element>. Os filhos são os elementos que estão delimitados pelas <tags> que abrem e 
+  fecham determinado elemento.
+    
+  Por exemplo, no seguinte XML:
+    
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<raiz>
+   <elementoA>
+      <elementoB />
+      <elementoC />
+   </elementoA>
+</raiz>
+---
+
+  O elemento <<elementoA>> é filho da <<raiz>> e os elementos <<elementoB>> e <<elementoC>> são filhos de <<elementoA>>.
+  
+{Verificando a existência e a quantidade de elementos filhos}
+
+  A existência de elementos filhos pode ser verificada da seguinte forma:
+  
+---
+import net.sf.xisemele.api.Element;
+import net.sf.xisemele.api.Reader;
+import net.sf.xisemele.impl.XisemeleFactory;
+---
+---
+String xml =
+   "<raiz>" +
+      "<elementoA>" +
+         "<elementoB />" +
+         "<elementoC />" +
+      "</elementoA>" +
+   "</raiz>";
+         
+Reader reader = XisemeleFactory.newXisemele().createReader( xml );
+
+Element elementoA = reader.find("raiz/elementoA");
+      
+System.out.println( "Contém filhos: " + elementoA.containsChildren() );
+System.out.println( "Contém filho com nome elementoB: " + elementoA.containsChild("elementoB") );
+System.out.println( "Contém filho com nome elementoC: " + elementoA.containsChild("elementoC") );
+System.out.println( "Contém filho com nome elementoD: " + elementoA.containsChild("elementoD") );
+---
+
+  O método <Element.containsChildren()> indica se o elemento contém elementos filhos e o método <Element.containsChild(String)> indica
+  se o elemento contém algum elemento filho com o nome especificado por parâmetro.
+  
+  O trecho de código acima imprime no console o seguinte resultado:
+  
+---
+Contém filhos: true
+Contém filho com nome elementoB: true
+Contém filho com nome elementoC: true
+Contém filho com nome elementoD: false
+---
+
+  A quantidade de elementos filhos pode ser verificada da seguinte forma:
+  
+---
+import net.sf.xisemele.api.Element;
+import net.sf.xisemele.api.Reader;
+import net.sf.xisemele.impl.XisemeleFactory;
+---
+---
+String xml =
+   "<raiz>" +
+      "<elementoA>" +
+         "<elementoB />" +
+         "<elementoB />" +
+         "<elementoC />" +
+         "<elementoC />" +
+         "<elementoC />" +
+      "</elementoA>" +
+   "</raiz>";
+         
+Reader reader = XisemeleFactory.newXisemele().createReader( xml );
+
+Element elementoA = reader.find("raiz/elementoA");
+      
+System.out.println( "Quantidade de filhos: " + elementoA.numberOfChildren() );
+System.out.println( "Quantidade de filhos com nome elementoB: " + elementoA.numberOfChildren("elementoB") );
+System.out.println( "Quantidade de filhos com nome elementoC: " + elementoA.numberOfChildren("elementoC") );
+System.out.println( "Quantidade de filhos com nome elementoD: " + elementoA.numberOfChildren("elementoD") );
+---
+
+  O método <Element.numberOfChildren()> retorna a quantidade de elementos filhos e o método <Element.numberOfChildren(String)> retorna
+  a quantidade de elementos filhos que contém o nome especificado por parâmetro.
+  
+  O trecho de código acima imprime no console o seguinte resultado:
+  
+---
+Quantidade de filhos: 5
+Quantidade de filhos com nome elementoB: 2
+Quantidade de filhos com nome elementoC: 3
+Quantidade de filhos com nome elementoD: 0
+---
+
+{Acessando elementos filhos}
+
+  Os elementos filhos podem ser acessados da seguinte forma:
+  
+---
+import java.util.List;
+
+import net.sf.xisemele.api.Element;
+import net.sf.xisemele.api.Reader;
+import net.sf.xisemele.impl.XisemeleFactory;
+---
+---
+String xml =
+   "<raiz>" +
+      "<elementoA>" +
+         "<elementoB>valor B</elementoB>" +
+         "<elementoC>valor C:1</elementoC>" +
+         "<elementoC>valor C:2</elementoC>" +
+         "<elementoC>valor C:3</elementoC>" +
+      "</elementoA>" +
+   "</raiz>";
+         
+Element elementoA = XisemeleFactory.newXisemele().createReader( xml ).find("raiz/elementoA");
+      
+Element elementoB = elementoA.child("elementoB"); // (1)
+      
+Element elementoC1 = elementoA.child("elementoC"); // (2)
+      
+Element elementoC3 = elementoA.child(3); // (3)
+      
+List<Element> filhosDoElementoA = elementoA.children(); // (4)
+      
+List<Element> elementosC = elementoA.children("elementoC"); // (5)
+---
+
+  O método <Element.child(String)> retorna o primeiro filho encontrado com o nome especificado por parâmetro, como pode ser observado
+  nas declarações <<(1)>> e <<(2)>>. Repare que o elemento <<elementoA>> contém três filhos com o mesmo nome <<elementoC>>. Não é 
+  possível acessar esses três filhos por esse método. Esta é uma limitação que será resolvida em versão futura. Porém, a API fornece o 
+  método <Element.child(int)> que retorna o filho de acordo com o índice especificado por parâmetro. O primeiro elemento filho é indexado 
+  pelo número 0 (zero), portanto, a declaração <<(3)>> está recuperando o quarto filho, contando de cima para baixo, do elemento 
+  <<elementoA>>.
+  
+  Como pode ser observado na declaração <<(4)>>, o método <Element.children()> retorna uma lista de <Element> correspondente aos 
+  elementos filhos do elemento <<elementoA>>. Se determinado elemento não contiver filhos, a chamada a esse método retornará uma lista 
+  vazia. A API fornece ainda o método <Element.children(String)> que retorna uma lista contendo os elementos filhos com o nome especificado
+  por parâmetro. Na declaração <<(5)>> está sendo recuperada uma lista contendo os três elementos filhos de <<elementoA>> com o 
+  nome <<elementoC>>.
+  
+{<Path> versus <Element.child(String)>} 
+
+  Se você leu o tutorial até aqui você deve ter notado que tanto o recurso {{{index.html#Path}<Path>}} quanto o método 
+  <Element.child(String)> têm limitações para acessar determinados elementos em certas situações. Pode-se dizer que esses dois
+  recursos têm a mesma limitação pois os dois são equivalentes. Ou seja, qualquer elemento em um documento XML que pode ser acessado
+  diretamente através do {{{index.html#Path}<Path>}} pode também ser acessado através de chamadas aninhadas ao método 
+  <Element.child(String)>.
+  
+  Por exemplo, para o documento XML:
+  
+---
+<raiz>
+  <elementoA>
+    <elementoB>
+      <elementoC />
+    </elementoB>
+  </elementoA>
+</raiz>
+---
+
+  O elemento <<elementoC>> pode ser acessado das seguintes formas:
+  
+---
+import net.sf.xisemele.api.Reader;
+import net.sf.xisemele.impl.XisemeleFactory;
+---
+---
+Reader reader = XisemeleFactory.newXisemele().createReader( xml );
+      
+reader.find("raiz/elementoA/elementoB/elementoC"); // (1)
+      
+reader.find("raiz/elementoA/elementoB").child("elementoC"); // (2)
+      
+reader.find("raiz/elementoA").child("elementoB").child("elementoC"); // (3)
+      
+reader.find("raiz").child("elementoA").child("elementoB").child("elementoC"); // (4)
+      
+reader.root().child("elementoA").child("elementoB").child("elementoC"); // (5)
+---
+
+  As cinco desclarações acima, de <<(1)>> a <<(5)>>, são equivalentes. Na declaração <<(5)>> a chamada <<reader.root()>> é equivalente
+  à chamada <<reader.find("raiz")>> da declaração <<(4)>>. O método <Reader.root()> retorna o elemento raiz do documento XML.
+  
+{Lendo valores de elementos filhos}
+
+  A interface <Element> fornece dois métodos para recuperar a lista de valores de elementos filhos: <Element.childrenValue()> e
+  <Element.childrenValue(String)>. Esses métodos podem ser usados da seguinte forma:
+  
+---
+import net.sf.xisemele.api.Element;
+import net.sf.xisemele.api.Reader;
+import net.sf.xisemele.impl.XisemeleFactory;
+---
+---
+String xml = 
+   "<raiz>" +
+      "<elementoA>" +
+         "<elementoB>10</elementoB>" +
+         "<elementoB>20</elementoB>" +
+         "<elementoC>30</elementoC>" +
+         "<elementoC>40</elementoC>" +
+         "<elementoC>50</elementoC>" +
+         "<elementoC>60</elementoC>" +
+      "</elementoA>" +
+   "</raiz>";
+      
+Reader reader = XisemeleFactory.newXisemele().createReader( xml );
+      
+Element elementoA = reader.find("raiz/elementoA");
+      
+System.out.println( elementoA.childrenValue().asString() );
+      
+System.out.println( elementoA.childrenValue("elementoB").asInteger() );
+      
+System.out.println( elementoA.childrenValue("elementoC").asDouble() );
+---
+
+  O método <Element.childrenValue()> retorna uma instância de <ListValue> que abstrai a lista de valores de todos os elementos filhos. O
+  método <Element.childrenValue(String)> retorna uma instância de <ListValue> que abstrai a lista de valores dos filhos com o nome
+  especificado por parâmetro.
+  
+  A interface <ListValue> é semelhante à interface <Value> demonstrada na {{{Tabela_1}<<Tabela 1>>}}. A única diferença é que cada método
+  da interface <Value> retorna um tipo <<X>> correspondente ao método <<asX()>> enquanto que o mesmo método na interface <ListValue>
+  retorna uma instância de <java.util.List> contendo valores desse tipo. 
+
+  O trecho de código acima imprime no console o seguinte resultado:
+  
+---
+[10, 20, 30, 40, 50, 60]
+[10, 20]
+[30.0, 40.0, 50.0, 60.0]
+---
+
+Outros tutoriais
+
+  * {{{escrita.html}Escrita de XML}}
+  
+  * {{{edicao.html}Edição de XML}}
+  
+  * {{{result.html}Interface <Result>}}
+  
+  * {{{formatador.html}Formatadores}}

@@ -1,0 +1,297 @@
+Escrita de documentos XML
+
+  Este tutorial ensina como criar documentos XML a partir do zero através da interface <Writer> do Xisemele.
+  
+{Writer}
+
+  Para escrever um documento XML do zero você precisa obter uma instância de <Writer> da seguinte forma:
+  
+---
+import net.sf.xisemele.api.Writer;
+import net.sf.xisemele.impl.XisemeleFactory;
+---
+---
+Writer writer = XisemeleFactory.newXisemele().createWriter( nomeElementoRaiz );
+---
+
+  Neste caso <<nomeElementoRaiz>> deve ser uma <String> contendo o nome que será aplicado ao elemento raiz do documento XML criado.
+  
+  Por exemplo, o código:
+
+---
+import net.sf.xisemele.api.Writer;
+import net.sf.xisemele.impl.XisemeleFactory;
+---  
+---
+Writer writer = XisemeleFactory.newXisemele().createWriter("raiz");
+
+String xml = writer.result().ident(true).toXML();
+      
+System.out.println( xml );
+---
+
+  Imprime no console o seguinte XML:
+  
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<raiz/>
+---
+
+  O método <Writer.result()> retorna uma instância da interface <Result>. Essa interface abstrai a transformação do documento XML para
+  outro formato como <String>, arquivo, etc. Veja mais detalhes sobre como usar esse recurso na seção {{{result.html}<Result>}}.
+  
+{Atributos}
+
+  A interface <Writer> fornece os métodos <Writer.attribute(String, Object)> (nome, valor) e 
+  <Writer.attribute(String, java.util.Date, String)> (nome, data, formato) para a adição de atributos ao elemento corrente da escrita de 
+  XML.
+  
+  Por exemplo, o código:
+  
+---
+import java.util.Date;
+
+import net.sf.xisemele.api.Writer;
+import net.sf.xisemele.impl.XisemeleFactory;
+---
+---
+Writer writer = XisemeleFactory.newXisemele().createWriter("raiz")
+   .attribute("Id", 123)
+   .attribute("ultima-modificacao", new Date(), "dd/MM/yyyy");
+
+String xml = writer.result().ident(true).toXML();
+      
+System.out.println( xml );
+---
+
+  Imprime no console o seguinte XML:
+  
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<raiz Id="123" ultima-modificacao="29/07/2009"/>
+--- 
+
+  A chamada ao método <Writer.attribute()> adiciona um atributo somente ao último elemento criado. 
+  
+  Por exemplo, no código:
+  
+---
+import net.sf.xisemele.api.Writer;
+import net.sf.xisemele.impl.XisemeleFactory;
+---
+---
+Writer writer = XisemeleFactory.newXisemele().createWriter("raiz")
+   .within()
+      .element("elementoA").attribute("atr", "valor de atr")
+   .endWithin();
+
+String xml = writer.result().ident(true).toXML();
+      
+System.out.println( xml );
+---
+
+  A chamada ao método <Writer.attribute()> está adicionando um atributo com nome <<atr>> ao elemento <<elementoA>>, como pode ser observado
+  no XML resultante impresso no console:
+  
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<raiz>
+  <elementoA atr="valor de atr"/>
+</raiz>
+---
+
+  Os métodos <Writer.within()>, <Writer.element()> e <Writer.endWithin()> serão apresentados mais adiante nesse tutorial.
+  
+{Contexto <within>}
+
+  A API do Xisemele define um conceito chamado de contexto <within> que indica o nível, na hierarquia do documento XML, em que os 
+  elementos poderão ser adicionados. Esse contexto pode ser iniciado ou finalizado invocando-se os métodos <Writer.within()> e
+  <Writer.endWithin()>, respectivamente. A chamada ao método <Writer.within()> faz com que os próximos elementos sejam adicionados como
+  filhos do elemento criado antes da inicialização do contexto <within>.
+  
+  Observe o exemplo:
+  
+---
+import net.sf.xisemele.api.Writer;
+import net.sf.xisemele.impl.XisemeleFactory;
+---
+---
+Writer writer = XisemeleFactory.newXisemele().createWriter("raiz")
+   .within()                  // (1)
+      .element("elementoA")
+      .element("elementoB")
+      .within()               // (2)
+         .element("elementoC")
+         .element("elementoD")
+      .endWithin()            // (3)
+      .element("elementoE")
+   .endWithin();              // (4)
+
+String xml = writer.result().ident(true).toXML();
+      
+System.out.println( xml );
+---
+
+  A chamada <<(1)>> inicia um contexto <within> para o elemento raiz do documento XML. A partir daí todos os elementos adicionados serão 
+  filhos da raiz até que um novo contexto <within> seja iniciado, como é o caso da chamada <<(2)>>. É iniciado um contexto <within> 
+  para o <<elementoB>> e na sequência são adicionados os elementos filhos <<elementoC>> e <<elementoD>>. A chamada <<(3)>> finaliza o 
+  último contexto <within> inicializado. A partir desse ponto o contexto <within> corrente passa a ser o da raiz do documento XML. 
+  Por último, a chamada <<(4)>> finaliza o contexto <within> do elemento raiz. 
+  
+  A execução do código acima imprime no console o seguine XML:
+  
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<raiz>
+  <elementoA/>
+  <elementoB>
+    <elementoC/>
+    <elementoD/>
+  </elementoB>
+  <elementoE/>
+</raiz>
+---
+
+{Elementos}
+
+  A API de escrita do Xisemele fornece quatro métodos para adicição de elementos XML: <Writer.element(String)> (nome),
+  <Writer.element(String, Object)> (nome, valor), <Writer.element(String, java.util.Date, String)> (nome, data, formato) e 
+  <Writer.element(Element)>. 
+  
+{Adicionando elementos sem valor}
+
+  O Xisemele implementa um conceito de que elementos podem ter valor. Veja mais detalhes sobre isso na seção 
+  {{{introducao.html#Valores}Valores}}.
+  
+  Elementos sem valor podem ser adicionados a um documento XML da seguinte forma:
+  
+---
+import net.sf.xisemele.api.Writer;
+import net.sf.xisemele.impl.XisemeleFactory;
+---
+---
+Writer writer = XisemeleFactory.newXisemele().createWriter("raiz")
+   .within()                  
+      .element("elementoA")
+      .element("elementoB")
+   .endWithin();
+
+String xml = writer.result().ident(true).toXML();
+      
+System.out.println( xml );
+---
+
+  O método <Writer.element(String)> adiciona um elemento com o nome especificado por parâmetro no contexto <within> corrente.
+  
+  O trecho de código acima imprime no console o seguinte XML:
+  
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<raiz>
+  <elementoA/>
+  <elementoB/>
+</raiz>
+---  
+
+{Adicionando elementos com valor}
+
+  Elementos com valor podem ser adicionados a um documento XML da seguinte forma:
+  
+---
+import java.util.Date;
+
+import net.sf.xisemele.api.Writer;
+import net.sf.xisemele.impl.XisemeleFactory;
+---
+---
+Writer writer = XisemeleFactory.newXisemele().createWriter("raiz")
+   .within()                  
+      .element("elementoA", 12)
+      .element("elementoB", new Date(), "dd/MM/yyyy")
+   .endWithin();
+
+String xml = writer.result().ident(true).toXML();
+      
+System.out.println( xml );
+---
+
+  O método <Writer.element(String, Object)> adiciona um elemento como o nome e valor especificados por parâmetro no contexto <within>
+  corrente. A forma como o valor especificado é convertido para <String> depende de como os {{{formatador.html}Formatadores}} foram 
+  configurados para o tipo correspondente. 
+  
+  O método <Writer.element(String, java.util.Date, String)> adiciona um elemento com o nome e valor no contexto <within> corrente de tal 
+  forma que o valor é a data formatada de acordo como o padrão especificado.
+  
+  O trecho de código acima imprime no console o seguinte XML:
+  
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<raiz>
+  <elementoA>12</elementoA>
+  <elementoB>31/07/2009</elementoB>
+</raiz>
+---
+
+{Adicionando uma instância de <Element> a um documento XML}
+
+  A API de escrita do Xisemele fornece o método <Writer.element(Element)> que permite a adição de uma instância de <Element>, 
+  correspondente ao elemento de um outro documento XML, no contexto <within> corrente do documento XML que está sendo escrito do zero. A
+  adição de uma instância de <Element> resultará na adição de todos os atributos e elementos filhos pertencentes ao elemento.
+  
+  Por exemplo, o seguinte trecho de código:
+  
+---
+import net.sf.xisemele.api.Element;
+import net.sf.xisemele.api.Writer;
+import net.sf.xisemele.api.Xisemele;
+import net.sf.xisemele.impl.XisemeleFactory;
+---
+---
+Xisemele xisemele = XisemeleFactory.newXisemele();
+      
+String outroXML = 
+   "<outro>" +
+      "<novoElemento atr=\"valor atr\">" +
+         "<filho1>valor 1</filho1>" +
+         "<filho2>valor 2</filho2>" +
+      "</novoElemento>" +
+   "</outro>";
+      
+Element novoElemento = xisemele.createReader( outroXML ).find("outro/novoElemento");
+      
+Writer writer = xisemele.createWriter("raiz")
+   .within()                  
+      .element("elemento", Boolean.TRUE)
+      .element(novoElemento)
+   .endWithin();
+
+String xml = writer.result().ident(true).toXML();
+      
+System.out.println( xml );
+---
+
+  Imprime no console o seguinte XML:
+  
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<raiz>
+  <elemento>true</elemento>
+  <novoElemento atr="valor atr">
+    <filho1>valor 1</filho1>
+    <filho2>valor 2</filho2>
+  </novoElemento>
+</raiz>
+---
+
+  Neste último exemplo uma instância de <Element> foi recuperada através de uma instância de <Reader>. Veja como ler documentos XML
+  na seção {{{leitura.html}Leitura de documentos XML}}.
+  
+Outros tutoriais
+
+  * {{{leitura.html}Leitura de XML}}
+
+  * {{{edicao.html}Edição de XML}}
+  
+  * {{{result.html}Interface <Result>}}
+  
+  * {{{formatador.html}Formatadores}}

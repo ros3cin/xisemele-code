@@ -1,0 +1,23 @@
+#banner {
+	border-bottom: 0 none;
+}
+
+p {
+	font-size: 13px;
+}
+
+h2 {
+	color: #333333;
+	font-size: 17px;
+}
+
+#navcolumn h5 {
+  font-size: smaller;
+  border: 1px solid #aaaaaa;
+  background-color: #bbb;
+  margin-top: 7px;
+  margin-bottom: 2px;
+  padding-top: 2px;
+  padding-left: 2px;
+  color: #000;
+}

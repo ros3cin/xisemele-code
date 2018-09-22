@@ -1,0 +1,68 @@
+Interface <Result>
+
+  Uma instância dessa interface é retornada pelo método <result()> presente nas interfaces <Writer> e <Editor>. 
+  
+  A interface <Result> fornece métodos que permitem configurar a transformação de determinado documento XML para outros formatos como 
+  <String>, arquivo, etc.
+  
+  Um exemplo completo de como a interface <Result> pode ser utilizada é apresentado abaixo:
+  
+---
+import java.io.File;
+
+import net.sf.xisemele.api.Result;
+import net.sf.xisemele.impl.XisemeleFactory;
+---
+---
+Result result = 
+   XisemeleFactory.newXisemele().createWriter("raiz")
+      .within()
+         .element("elementoA").within()
+            .element("elementoB", "Valor B")
+            .element("elementoC", Boolean.TRUE)
+         .endWithin()
+         .element("elementoC", "Valor C")
+      .endWithin()
+   .result();
+      
+String xml = result
+   .encoding("ISO-8859-1")           // (1)
+   .ident(true)                      // (2)
+   .identNumber(3)                   // (3)
+   .toFile(new File("arquivo1.xml")) // (4)
+   .toFile("arquivo2.xml")           // (5)
+   .toXML();                         // (6)
+      
+System.out.println( xml );
+---  
+
+  O método <Result.encoding(String)> especifica o <encoding> que será aplicado na transformação do XML. No caso da chamada <<(1)>> foi
+  atribuído o <encoding> <<ISO-8859-1>>. Os métodos <Result.ident(boolean)> e <Result.identNumber(int)> especificam se o XML resultante
+  será identado ou não e a quantidade de espaços que será aplicada em cada nível da identação, respectivamente. Em <<(2)>> foi definido
+  que o XML será identado, especificando-se o valor <<true>> e na sequência a chamada <<(3)>> define que será aplicado 3 espaços para
+  cada nível na identação. Os métodos <Result.toFile(java.io.File)> e <Result.toFile(String)> salvam o XML para o arquivo especificado por
+  parâmetro, como pode ser observado em <<(4)>> e <<(5)>>. Por último, o documento XML é convertido para <String> através do método
+  <Result.toXML()> como pode ser observado na chamada <<(6)>>.
+  
+  O trecho de código acima gera os arquivos <<arquivo1.xml>> e <<arquivo2.xml>> e uma saída no console contendo o seguinte XML:
+  
+---
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<raiz>
+   <elementoA>
+      <elementoB>Valor B</elementoB>
+      <elementoC>true</elementoC>
+   </elementoA>
+   <elementoC>Valor C</elementoC>
+</raiz>
+---
+  
+Outros tutoriais
+
+  * {{{leitura.html}Leitura de XML}}
+
+  * {{{escrita.html}Escrita de XML}}
+  
+  * {{{edicao.html}Edição de XML}}
+  
+  * {{{formatador.html}Formatadores}}

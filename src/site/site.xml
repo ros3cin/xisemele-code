@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project xmlns="http://maven.apache.org/DECORATION/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/DECORATION/1.0.0 http://maven.apache.org/xsd/decoration-1.0.0.xsd"
+         name="XiseMeLe">
+	<publishDate format="dd/MM/yyyy" />
+	
+	<version position="left" />
+	
+	<bannerLeft>
+		<name>Xisemele</name>
+		<src>images/logo.png</src>
+		<href>http://xisemele.sourceforge.net/</href>
+	</bannerLeft>
+	
+	<bannerRight>
+	  <src>images/banner-right.png</src>
+	</bannerRight>
+	
+	<body>
+	   <head>
+	      <meta name="verify-v1" content="no3XaAG7CAqLr76L13qk8iwExHPizA4XeTL020hGdXY=" />
+	      <meta name="language" content="pt-br"/>
+	      <meta name="keywords" content="xisemele, xml, java, interface fluente, xml editor, xml parser, xml writer, xml reader, open source, sourceforge"/>
+	      <meta name="description" content="Xisemele é uma biblioteca simples escrita em Java para manipulação de XML com interface fluente para leitura, escrita e edição de documentos da API W3C DOM"/>
+	      <meta name="url" content="http://xisemele.sourceforge.net"/>
+	      <meta name="robots" content="ALL"/>
+	      <meta name="author" content="Carlos Eduardo Coral"/>
+	   </head>
+	   
+		<links>
+			<item name="SOURCEFORGE.NET" href="http://sourceforge.net/projects/xisemele" />
+		</links>
+		
+		<menu name="Xisemele">
+			<item name="Introdução" href="index.html" />
+			<item name="Tutorial" href="tutorial/introducao.html" collapse="true">
+				<item name="Leitura" href="tutorial/leitura.html" />
+				<item name="Escrita" href="tutorial/escrita.html" />
+				<item name="Edição" href="tutorial/edicao.html" />
+				<item name="Result" href="tutorial/result.html" />
+				<item name="Formatadores" href="tutorial/formatador.html" />
+			</item>
+		</menu>
+		
+		<menu name="Projeto">
+			<item name="Download" href="https://sourceforge.net/projects/xisemele/files/" />
+			<item name="Browse Code" href="http://xisemele.svn.sourceforge.net/viewvc/xisemele" />
+		</menu>
+		
+		<menu ref="reports" />
+	</body>
+</project>

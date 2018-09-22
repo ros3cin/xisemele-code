@@ -1,0 +1,138 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>net.sf.xisemele</groupId>
+	<artifactId>xisemele</artifactId>
+	<packaging>jar</packaging>
+	<name>xisemele</name>
+	<version>1.4</version>
+	<description>A simple Java API that allow a fluent interface to read/write/edit XML documents</description>
+	<url>http://xisemele.sourceforge.net</url>
+	
+	<developers>
+		<developer>
+			<id>ducoral</id>
+			<name>Carlos Eduardo Coral</name>
+			<roles>
+				<role>administrator</role>
+				<role>developer</role>
+			</roles>
+			<timezone>-3</timezone>
+		</developer>
+	</developers>
+	
+	<licenses>
+		<license>
+			<name>GNU Library or "Lesser" General Public License version 3.0
+				(LGPLv3)</name>
+			<url>http://www.gnu.org/licenses/gpl-3.0.html</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<phase>package</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+        <version>2.2</version>
+      </plugin>              
+		</plugins>
+	</build>
+	
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.3</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.easymock</groupId>
+			<artifactId>easymock</artifactId>
+			<version>2.4</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.easymock</groupId>
+			<artifactId>easymockclassextension</artifactId>
+			<version>2.4</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<reportSets>
+					<reportSet>
+						<reports>
+	                 <report>license</report>
+	                 <report>project-team</report>
+	                 <report>summary</report>
+	                 <report>scm</report>
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin>
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+				  <doctitle>Xisemele Javadoc API</doctitle>
+				  <windowtitle>Xisemele Javadoc API</windowtitle>
+				  <testDoctitle>Xisemele Javadoc Test API</testDoctitle>
+				  <testWindowtitle>Xisemele Javadoc Test API</testWindowtitle>
+				</configuration>
+			</plugin>
+		</plugins>
+	</reporting>
+	
+	<scm>
+		<url>https://xisemele.svn.sourceforge.net/svnroot/xisemele</url>
+	</scm>
+	
+	<distributionManagement>
+		<downloadUrl>http://sourceforge.net/projects/xisemele/files/</downloadUrl>
+		
+		<site>
+			<id>xisemele.sourceforge.net</id>
+			<name>Xisemele Server</name>
+			<url>scp://shell.sourceforge.net/home/project-web/xisemele/htdocs</url>
+		</site>
+		
+		<repository>
+			<id>xisemele.sourceforge.net</id>
+			<name>Xisemele Maven Server</name>
+			<url>scp://shell.sourceforge.net/home/project-web/xisemele/htdocs/maven</url>
+		</repository>
+		
+		<snapshotRepository>
+			<id>xisemele.sourceforge.net</id>
+			<name>Xisemele Snapshots Server</name>
+			<url>scp://shell.sourceforge.net/home/project-web/xisemele/htdocs/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+</project>
