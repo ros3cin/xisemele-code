@@ -152,4 +152,7 @@
 			<url>scp://shell.sourceforge.net/home/project-web/xisemele/htdocs/snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
+	<properties>
+		<maven.test.failure.ignore>true</maven.test.failure.ignore>
+	</properties>
 </project>
