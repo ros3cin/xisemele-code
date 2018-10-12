@@ -4,6 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.sf.xisemele.api.Formatter;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
+import java.util.LinkedHashSet;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Implementação de {@link FormatterProvider}.
@@ -20,7 +25,7 @@ class FormatterProviderImpl implements FormatterProvider {
    /**
     * Mapa contendo os tipos e as instâncias de {@link Formatter} correspondentes.
     */
-   private Map<Class<?>, Formatter<?>> formatters = new HashMap<Class<?>, Formatter<?>>();
+   private Map<Class<?>, Formatter<?>> formatters = new HashedMap<Class<?>, Formatter<?>>();
 
    /**
     * {@inheritDoc}

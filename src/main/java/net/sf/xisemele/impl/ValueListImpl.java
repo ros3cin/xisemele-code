@@ -9,6 +9,12 @@ import java.util.List;
 import net.sf.xisemele.api.Value;
 import net.sf.xisemele.api.ValueList;
 import net.sf.xisemele.exception.FormatterNotConfiguredException;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
+import java.util.LinkedHashSet;
+import java.util.concurrent.CopyOnWriteArrayList;
+import org.apache.commons.collections4.list.TreeList;
 
 /**
  * Implementação de {@link ValueList}.
@@ -41,7 +47,7 @@ class ValueListImpl implements ValueList {
     * {@inheritDoc}
     */
    public List<Byte> asByte() {
-      List<Byte> list = new ArrayList<Byte>();
+      List<Byte> list = new TreeList<Byte>();
       for (Value value : values) {
          list.add(value.asByte());
       }
@@ -52,7 +58,7 @@ class ValueListImpl implements ValueList {
     * {@inheritDoc}
     */
    public List<Short> asShort() {
-      List<Short> list = new ArrayList<Short>();
+      List<Short> list = new TreeList<Short>();
       for (Value value : values) {
          list.add(value.asShort());
       }
@@ -63,7 +69,7 @@ class ValueListImpl implements ValueList {
     * {@inheritDoc}
     */
    public List<Integer> asInteger() {
-      List<Integer> list = new ArrayList<Integer>();
+      List<Integer> list = new TreeList<Integer>();
       for (Value value : values) {
          list.add(value.asInteger());
       }
@@ -74,7 +80,7 @@ class ValueListImpl implements ValueList {
     * {@inheritDoc}
     */
    public List<Long> asLong() {
-      List<Long> list = new ArrayList<Long>();
+      List<Long> list = new TreeList<Long>();
       for (Value value : values) {
          list.add(value.asLong());
       }
@@ -85,7 +91,7 @@ class ValueListImpl implements ValueList {
     * {@inheritDoc}
     */
    public List<Float> asFloat() {
-      List<Float> list = new ArrayList<Float>();
+      List<Float> list = new TreeList<Float>();
       for (Value value : values) {
          list.add(value.asFloat());
       }
@@ -96,7 +102,7 @@ class ValueListImpl implements ValueList {
     * {@inheritDoc}
     */
    public List<Double> asDouble() {
-      List<Double> list = new ArrayList<Double>();
+      List<Double> list = new TreeList<Double>();
       for (Value value : values) {
          list.add(value.asDouble());
       }
@@ -107,7 +113,7 @@ class ValueListImpl implements ValueList {
     * {@inheritDoc}
     */
    public List<BigInteger> asBigInteger() {
-      List<BigInteger> list = new ArrayList<BigInteger>();
+      List<BigInteger> list = new TreeList<BigInteger>();
       for (Value value : values) {
          list.add(value.asBigInteger());
       }
@@ -118,7 +124,7 @@ class ValueListImpl implements ValueList {
     * {@inheritDoc}
     */
    public List<BigDecimal> asBigDecimal() {
-      List<BigDecimal> list = new ArrayList<BigDecimal>();
+      List<BigDecimal> list = new TreeList<BigDecimal>();
       for (Value value : values) {
          list.add(value.asBigDecimal());
       }
@@ -129,7 +135,7 @@ class ValueListImpl implements ValueList {
     * {@inheritDoc}
     */
    public List<Boolean> asBoolean() {
-      List<Boolean> list = new ArrayList<Boolean>();
+      List<Boolean> list = new TreeList<Boolean>();
       for (Value value : values) {
          list.add(value.asBoolean());
       }
@@ -140,7 +146,7 @@ class ValueListImpl implements ValueList {
     * {@inheritDoc}
     */
    public List<String> asString() {
-      List<String> list = new ArrayList<String>();
+      List<String> list = new TreeList<String>();
       for (Value value : values) {
          list.add(value.asString());
       }
@@ -151,7 +157,7 @@ class ValueListImpl implements ValueList {
     * {@inheritDoc}
     */
    public List<Date> asDate() {
-      List<Date> list = new ArrayList<Date>();
+      List<Date> list = new TreeList<Date>();
       for (Value value : values) {
          list.add(value.asDate());
       }
@@ -162,7 +168,7 @@ class ValueListImpl implements ValueList {
     * {@inheritDoc}
     */
    public List<Date> asDate(String pattern) {
-      List<Date> list = new ArrayList<Date>();
+      List<Date> list = new TreeList<Date>();
       for (Value value : values) {
          list.add(value.asDate(pattern));
       }
@@ -173,7 +179,7 @@ class ValueListImpl implements ValueList {
     * {@inheritDoc}
     */
    public <T> List<T> asType(Class<T> type) throws FormatterNotConfiguredException {
-      List<T> list = new ArrayList<T>();
+      List<T> list = new TreeList<T>();
       for (Value value : values) {
          list.add(value.asType(type));
       }
