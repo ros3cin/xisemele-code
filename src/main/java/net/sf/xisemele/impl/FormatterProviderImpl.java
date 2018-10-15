@@ -1,6 +1,7 @@
 package net.sf.xisemele.impl;
 
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 
 import net.sf.xisemele.api.Formatter;
@@ -20,7 +21,7 @@ class FormatterProviderImpl implements FormatterProvider {
    /**
     * Mapa contendo os tipos e as instâncias de {@link Formatter} correspondentes.
     */
-   private Map<Class<?>, Formatter<?>> formatters = new HashMap<Class<?>, Formatter<?>>();
+   private Map<Class<?>, Formatter<?>> formatters = new Hashtable<Class<?>, Formatter<?>>();
 
    /**
     * {@inheritDoc}
