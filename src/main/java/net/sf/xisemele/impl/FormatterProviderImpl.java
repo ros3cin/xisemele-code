@@ -2,38 +2,37 @@ package net.sf.xisemele.impl;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import net.sf.xisemele.api.Formatter;
 
 /**
- * Implementa√ß√£o de {@link FormatterProvider}.
- * 
+ * ImplementaÁ„o de {@link FormatterProvider}.
+ *
  * @author Carlos Eduardo Coral.
  */
 class FormatterProviderImpl implements FormatterProvider {
 
-   /**
-    * Serial version.
-    */
-   private static final long serialVersionUID = 1L;
+    /**
+     * Serial version.
+     */
+    private static final long serialVersionUID = 1L;
 
-   /**
-    * Mapa contendo os tipos e as inst√¢ncias de {@link Formatter} correspondentes.
-    */
-   private Map<Class<?>, Formatter<?>> formatters = new HashMap<Class<?>, Formatter<?>>();
+    /**
+     * Mapa contendo os tipos e as inst‚ncias de {@link Formatter} correspondentes.
+     */
+    private Map<Class<?>, Formatter<?>> formatters = new java.util.LinkedHashMap<Class<?>, Formatter<?>>();
 
-   /**
-    * {@inheritDoc}
-    */
-   @SuppressWarnings("unchecked")
-   public <T> Formatter<T> getFormatter(Class<?> type) {
-      return (Formatter<T>) formatters.get(type);
-   }
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    public <T> Formatter<T> getFormatter(Class<?> type) {
+        return (Formatter<T>) formatters.get(type);
+    }
 
-   /**
-    * {@inheritDoc}
-    */
-   public void setFormatter(Class<?> type, Formatter<?> formatter) {
-      formatters.put(type, formatter);
-   }
+    /**
+     * {@inheritDoc}
+     */
+    public void setFormatter(Class<?> type, Formatter<?> formatter) {
+        formatters.put(type, formatter);
+    }
 }
